@@ -1,32 +1,31 @@
-from sys import stdin
+from collections import defaultdict
 
-input = stdin.readline
 
-def find(x):
+def find_parent(parent, x):
     if parent[x] != x:
-        parent[x] = find(parent[x])
+        parent[x] = find_parent(parent, parent[x])
     return parent[x]
 
 
-def union(a, b):
-    a = find(a)
-    b = find(b)
-
+def union_parent(parent, a, b, cnt):
+    a = find_parent(parent, a)
+    b = find_parent(parent, b)
     if a != b:
         parent[b] = a
-        number[a] += number[b]
-    print(number[a])
+        cnt[a] += cnt[b]
+    print(cnt[a])
 
 
 for _ in range(int(input())):
-    num = int(input())
-    parent, number = {}, {}
-    for i in range(num):
-        a, b = input().split()
-        if a not in parent:
-            parent[a] = a
-            number[a] = 1
-        if b not in parent:
-            parent[b] =b
-            number[b] = 1
-        union(a, b)
+    n = int(input())
+    infos = [input().rstrip().split() for _ in range(n)]
+    parents = defaultdict(str)
+    cnt = defaultdict(int)
+    for a, b in infos:
+        if not parents[a]:
+            parents[a] = a
+            cnt[a] = 1
+        if not parents[b]:
+            parents[b] = b
+            cnt[b] = 1
+        union_parent(parents, a, b, cnt)
