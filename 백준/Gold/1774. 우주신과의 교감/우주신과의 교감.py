@@ -1,4 +1,7 @@
 import math
+import sys
+
+input = sys.stdin.readline
 
 def find_parent(parent, x):
     if parent[x] != x:
