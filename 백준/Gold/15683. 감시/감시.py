@@ -1,69 +1,65 @@
-import sys
-
-input = sys.stdin.readline
-
-
-def check_board():
-    temp = []
+def get_cctvs():
+    cctvs = []
     for i in range(n):
         for j in range(m):
             if board[i][j] and board[i][j] != 6:
-                temp.append([i, j])
-    return temp
+                cctvs.append([i, j, board[i][j]])
+    return cctvs, len(cctvs)
 
 
-def get_blank():
-    temp = 0
+def get_blank(board):
+    cnt = 0
     for i in range(n):
         for j in range(m):
             if not board[i][j]:
-                temp += 1
-    return temp
+                cnt += 1
+    return cnt
 
 
-def dfs(idx):
-    global ans
-    if idx == cctv_len:
-        temp = get_blank()
-        if ans > temp:
-            ans = temp
-        return
+def solve(case):
+    def upd(x, y, direction):
+        direction %= 4
+        while True:
+            x += dx[direction]
+            y += dy[direction]
+            if not (0 <= x < n and 0 <= y < m) or new_board[x][y] == 6:
+                break
+            new_board[x][y] = 7
 
-    x, y = cctv_lst[idx]
-    number = board[x][y]
-    cctv = cctvs[number]
+    new_board = [[board[i][j] for j in range(m)] for i in range(n)]
 
-    for cv in cctv:
-        temp_lst = []
-        for num in cv:
-            sx, sy = x, y
-            dx, dy = move[num]
-            while True:
-                nx, ny = sx + dx, sy + dy
-                if not (0 <= nx < n and 0 <= ny < m) or board[nx][ny] == 6:
-                    break
-                if not board[nx][ny]:
-                    board[nx][ny] = number
-                    temp_lst.append([nx, ny])
-                sx, sy = nx, ny
-        dfs(idx + 1)
-        for a, b in temp_lst:
-            board[a][b] = 0
+    for i in range(cctvs_length):
+        direction = case % 4
+        x, y, cctv_type = cctvs[i]
+        if cctv_type == 1:
+            upd(x, y, direction)
+        elif cctv_type == 2:
+            upd(x, y, direction)
+            upd(x, y, direction + 2)
+        elif cctv_type == 3:
+            upd(x, y, direction)
+            upd(x, y, direction + 1)
+        elif cctv_type == 4:
+            upd(x, y, direction)
+            upd(x, y, direction + 1)
+            upd(x, y, direction + 2)
+        else:
+            upd(x, y, direction)
+            upd(x, y, direction + 1)
+            upd(x, y, direction + 2)
+            upd(x, y, direction + 3)
+        case //= 4
+    return get_blank(new_board)
 
 
 n, m = map(int, input().split())
 board = [list(map(int, input().split())) for _ in range(n)]
-ans = n * m
-cctvs = [
-    [],
-    [[0], [1], [2], [3]],
-    [[0, 2], [1, 3]],
-    [[0, 1], [1, 2], [2, 3], [3, 0]],
-    [[0, 1, 2], [1, 2, 3], [2, 3, 0], [3, 0, 1]],
-    [[0, 1, 2, 3]],
-]
-move = [(-1, 0), (0, 1), (1, 0), (0, -1)]
-cctv_lst = check_board()
-cctv_len = len(cctv_lst)
-dfs(0)
-print(ans)
+cctvs, cctvs_length = get_cctvs()
+dx, dy = (-1, 0, 1, 0), (0, 1, 0, -1)
+answer = get_blank(board)
+
+for case in range(4**cctvs_length):
+    temp = solve(case)
+    answer = min(answer, temp)
+
+print(answer)
