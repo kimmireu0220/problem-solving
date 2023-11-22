@@ -23,18 +23,13 @@ result = int(1e9)
 for i in range(1, n + 1):
     # 총 비용의 합 + 1 만큼
     for j in range(sum(cost) + 1):
-        # 현재 아이템의 메모리
-        now_memory = memory[i]
-        # 현재 아이템의 비용
-        now_cost = cost[i]
-
         # j cost보다 현재 앱의 cost가 크다면, 아직 앱이 종료되지 않았으므로, 최대 메모리가 갱신되지 않습니다.
         if j < cost[i]:
             dp[i][j] = dp[i - 1][j]
 
         # j cost보다 현재 앱의 cost가 크거나 같다면, 이제 j cost로 확보 가능한 최대 메모리 값을 갱신할 수 있습니다.
         else:
-            dp[i][j] = max(dp[i - 1][j - now_cost] + now_memory, dp[i - 1][j])
+            dp[i][j] = max(dp[i - 1][j - cost[i]] + memory[i], dp[i - 1][j])
 
         # 현재 dp[i][j]의 값이 필요한 메모리 M 이상이 된다면
         if dp[i][j] >= m:
